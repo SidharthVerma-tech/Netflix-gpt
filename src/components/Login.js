@@ -1,5 +1,10 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { validateData } from "../utils/validData";
+import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from '../utils/firebase';
+import { useDispatch } from 'react-redux';
+import { addUser, removeUser } from '../utils/userSlice';
+import { useNavigate } from 'react-router-dom';
 import Header from "./Header";
 
 const Login = () => {
@@ -7,15 +12,56 @@ const Login = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const email = useRef(null);
   const password = useRef(null);
+  const name = useRef(null)
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleFormChange = () => {
     setIsSignIn(!isSignIn);
   };
 
-  const handleFormSubmit = () => {
-    console.log(email.current.value, password.current.value)
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const { uid, email, displayName } = user;
+        dispatch(addUser({ uid: uid, email: email, displayName: displayName }));
+      } else {
+        dispatch(removeUser());
+      }
+    });
+  }, [dispatch]);
+
+  const handleFormSubmit = async () => {
+    console.log("Hello")
     const message = validateData(email.current.value, password.current.value);
     setErrorMessage(message);
+    if (message) return;
+
+    try {
+      if (!isSignIn) {
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          //name.current.value,
+          email.current.value,
+          password.current.value
+        );
+        const user = userCredential.user;
+        console.log(user);
+      } else {
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          email.current.value,
+          password.current.value
+        );
+        const user = userCredential.user;
+        console.log(user);
+      }
+      navigate('/browse');
+    } catch (error) {
+      const errorMessage = error.message;
+      console.log(error.code, errorMessage);
+      setErrorMessage(errorMessage);
+    }
   };
 
   return (
@@ -27,12 +73,12 @@ const Login = () => {
         alt="Background"
       />
       <form onSubmit={(e) => e.preventDefault()} className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-11/12 sm:w-8/12 md:w-6/12 lg:w-4/12 xl:w-3/12 p-6 sm:p-8 md:p-10 lg:p-12 bg-black bg-opacity-80 rounded-lg text-center">
-
-        <h1 className="font-bold text-white text-2xl sm:text-3xl mb-4 sm:mb-6">
+        <h1 className="font-bold text-white text-2xl sm:text-3xl mr-20 ml-0 mb-5">
           {!isSignIn ? "Sign Up" : "Sign In"}
         </h1>
         {!isSignIn && (
           <input
+            ref={name}
             type="text"
             className="p-2 sm:p-4 m-2 w-full rounded-sm bg-gray-700"
             placeholder="Full Name"
@@ -41,6 +87,7 @@ const Login = () => {
         <input
           ref={email}
           type="text"
+          text='white'
           className="p-2 sm:p-4 m-2 w-full rounded-sm bg-gray-700"
           placeholder="Email address"
         />
