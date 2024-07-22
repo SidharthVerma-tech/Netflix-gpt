@@ -2,9 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { validateData } from "../utils/validData";
 import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from '../utils/firebase';
-import { useDispatch } from 'react-redux';
-import { addUser, removeUser } from '../utils/userSlice';
-import { useNavigate } from 'react-router-dom';
+
 import Header from "./Header";
 
 const Login = () => {
@@ -13,23 +11,11 @@ const Login = () => {
   const email = useRef(null);
   const password = useRef(null);
   const name = useRef(null)
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+
 
   const handleFormChange = () => {
     setIsSignIn(!isSignIn);
   };
-
-  useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        const { uid, email, displayName } = user;
-        dispatch(addUser({ uid: uid, email: email, displayName: displayName }));
-      } else {
-        dispatch(removeUser());
-      }
-    });
-  }, [dispatch]);
 
   const handleFormSubmit = async () => {
     console.log("Hello")
@@ -56,7 +42,6 @@ const Login = () => {
         const user = userCredential.user;
         console.log(user);
       }
-      navigate('/browse');
     } catch (error) {
       const errorMessage = error.message;
       console.log(error.code, errorMessage);
