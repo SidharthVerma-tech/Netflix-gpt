@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { validateData } from "../utils/validData";
 import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from '../utils/firebase';
-
+import {background} from '../utils/constants/constants'
 import Header from "./Header";
 
 const Login = () => {
@@ -54,7 +54,7 @@ const Login = () => {
       <Header />
       <img
         className="absolute inset-0 w-full h-full object-cover"
-        src="https://assets.nflxext.com/ffe/siteui/vlv3/8728e059-7686-4d2d-a67a-84872bd71025/e90516bd-6925-4341-a6cf-0b9f3d0c140a/IN-en-20240708-POP_SIGNUP_TWO_WEEKS-perspective_WEB_34324b52-d094-482b-8c2a-708dc64c9065_medium.jpg"
+        src={background}
         alt="Background"
       />
       <form onSubmit={(e) => e.preventDefault()} className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-11/12 sm:w-8/12 md:w-6/12 lg:w-4/12 xl:w-3/12 p-6 sm:p-8 md:p-10 lg:p-12 bg-black bg-opacity-80 rounded-lg text-center">
